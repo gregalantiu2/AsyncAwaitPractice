@@ -17,16 +17,8 @@ namespace StockAnalyzer.Windows
         {
             InitializeComponent();
         }
-
-        private async void Search_Click(object sender, RoutedEventArgs e)
+        public async Task GetStocks()
         {
-            #region Before loading stock data
-            var watch = new Stopwatch();
-            watch.Start();
-            StockProgress.Visibility = Visibility.Visible;
-            StockProgress.IsIndeterminate = true;
-            #endregion
-
             using (var client = new HttpClient())
             {
                 var response = await client.GetAsync($"http://localhost:61363/api/stocks/{Ticker.Text}");
@@ -39,13 +31,24 @@ namespace StockAnalyzer.Windows
 
                     Stocks.ItemsSource = data;
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     Notes.Text += ex.Message;
                 }
 
-                
+
             }
+        }
+        private async void Search_Click(object sender, RoutedEventArgs e)
+        {
+            #region Before loading stock data
+            var watch = new Stopwatch();
+            watch.Start();
+            StockProgress.Visibility = Visibility.Visible;
+            StockProgress.IsIndeterminate = true;
+            #endregion
+
+            await GetStocks();
 
             #region After stock data is loaded
             StocksStatus.Text = $"Loaded stocks for {Ticker.Text} in {watch.ElapsedMilliseconds}ms";
